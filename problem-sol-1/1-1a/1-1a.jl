@@ -7,8 +7,9 @@ function cross(r)
             move!(r,i)
             putmarker!(r)
         end
+        reversive=reverse(i)
         while ismarker(r)==true
-            move!(r,reverse(i))
+            move!(r,reversive)
         end
     end
     putmarker!(r)
