@@ -9,7 +9,7 @@ function cross(r)
             putmarker!(r)
             steps+=1
         end
-        reversive=reverse(i)
+        reversiv=reverse(i)
         for i2=1:steps
             move!(r,reversive)
         end
