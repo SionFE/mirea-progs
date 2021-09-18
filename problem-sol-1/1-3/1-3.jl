@@ -40,7 +40,6 @@ function fillthefield(r)
 end
 function fill(r)
     a,b=movetocorner(r)
-    println(a,b)
     fillthefield(r)
     movetocorner(r)
     moveback(a,b,r)
