@@ -4,7 +4,7 @@ end
 function cross(r)
     for i in (HorizonSide(s) for s in 0:3)
         steps=0
-        while isborder(r,i)==false
+        while !isborder(r,i)
             move!(r,i)
             putmarker!(r)
             steps+=1

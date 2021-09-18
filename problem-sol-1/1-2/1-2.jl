@@ -1,7 +1,7 @@
 function markside(r, b)
-    while isborder(r, b)==false
+    while !isborder(r, b)
         move!(r, b)
-        if ismarker(r)==true
+        if ismarker(r)
             return 1
             break
         end
@@ -11,7 +11,7 @@ function markside(r, b)
 end
 function perimeter(r)
     steps=0
-    while isborder(r, Sud)==false
+    while !isborder(r, Sud)
         steps+=1
         move!(r, Sud)
     end

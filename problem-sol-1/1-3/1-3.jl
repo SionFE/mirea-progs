@@ -8,7 +8,7 @@ function moveback(countSud,countEast,r)
 end
 function movetoside(r, s)
     count=0
-    while isborder(r,s)==false
+    while !isborder(r,s)
         move!(r,s)
         count+=1
     end
@@ -20,7 +20,7 @@ function movetocorner(r)
     return countNord, countWest
 end
 function filltherow(r,s)
-    while isborder(r,s)==false
+    while !isborder(r,s)
         move!(r,s)
         putmarker!(r)
     end
@@ -30,7 +30,7 @@ function fillthefield(r)
     while true
         putmarker!(r)
         filltherow(r,HorizonSide(s%4))
-        if isborder(r,Sud)==true
+        if isborder(r,Sud)
             break
         else
             move!(r,Sud)
