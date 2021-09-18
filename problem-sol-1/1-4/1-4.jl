@@ -8,7 +8,7 @@ function moveback(countNord,countEast,r)
 end
 function movetoside(r, s)
     count=0
-    while isborder(r,s)==false
+    while !isborder(r,s)
         move!(r,s)
         count+=1
     end
@@ -25,10 +25,10 @@ function filltherow(r,s)
         move!(r,Ost)
         putmarker!(r)
     end
-    while isborder(r,West)==false
+    while !isborder(r,West)
         move!(r,West)
     end
-    if isborder(r,Nord)==false
+    if !isborder(r,Nord)
         move!(r,Nord)
         putmarker!(r)
         filltherow(r,s-1)
@@ -36,7 +36,7 @@ function filltherow(r,s)
 end
 function initsize(r)
     size=0
-    while isborder(r,Ost)==false
+    while !isborder(r,Ost)
         size+=1
         move!(r,Ost)
         putmarker!(r)
