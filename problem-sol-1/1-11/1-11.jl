@@ -76,7 +76,6 @@ end
 
 
 function check_if_bypassable(r::CRobotBP)
-    println("Checking whether the obstacle can be bypassed")
     movedir=West
     while !isborder(r.robot,movedir)
         move!(r,movedir,record=false)
@@ -105,7 +104,6 @@ end
 
 
 function bypass!(r)
-    println("Bypassing")
     for i=0:1
         move_till_!obstacle(r, inttosideconverter(4-i))
     end
