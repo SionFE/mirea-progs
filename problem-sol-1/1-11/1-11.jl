@@ -4,7 +4,7 @@ function int_reverse(side)
 end
 
 
-function inttosideconverter(b)
+function inttoside(b)
     return HorizonSide(abs(b%4))
 end
 
@@ -17,7 +17,7 @@ mutable struct Coord
 end
 
 
-mutable struct CRobotBP #CRobotBP - робот с backpath, т.е. с обратным путём. p хранит обратный путь в виде направлений движений
+mutable struct CRobotBP
     robot::Robot
     loc::Coord
     p::Vector{Int8}
@@ -97,7 +97,7 @@ end
 
 function move_till_!obstacle(r,s)
     while isborder(r,s)
-        move!(r, inttosideconverter(Int(s)+1))
+        move!(r, inttoside(Int(s)+1))
     end
     move!(r,s)
 end
@@ -105,7 +105,7 @@ end
 
 function bypass!(r)
     for i=0:1
-        move_till_!obstacle(r, inttosideconverter(4-i))
+        move_till_!obstacle(r, inttoside(4-i))
     end
     for i=1:abs(get_coord(r.loc)[1])
         move!(r, Ost)
@@ -115,11 +115,11 @@ end
 
 function startmarking!(r)
     for i=1:4
-        movetillwall!(r, inttosideconverter(i), rec=false)
+        movetillwall!(r, inttoside(i), rec=false)
         if i%2==0
-            move_for_steps!(r, inttosideconverter(i+1), abs(get_coord(r.loc)[1]), rec=false)
+            move_for_steps!(r, inttoside(i+1), abs(get_coord(r.loc)[1]), rec=false)
         else
-            move_for_steps!(r, inttosideconverter(i+1), abs(get_coord(r.loc)[2]), rec=false)
+            move_for_steps!(r, inttoside(i+1), abs(get_coord(r.loc)[2]), rec=false)
         end
         putmarker!(r)
     end
