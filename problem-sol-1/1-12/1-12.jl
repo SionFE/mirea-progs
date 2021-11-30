@@ -19,12 +19,9 @@ end
 
 get_coord(coord::Coord)=(coord.x, coord.y)
 int_to_side(b::Int)=HorizonSide(abs(mod(b, 4)))
-left(side::HorizonSide) = HorizonSide(mod(Int(side)+1, 4))
-right(side::HorizonSide) = HorizonSide(mod(Int(side)-1, 4))
 inverse(side::HorizonSide) = HorizonSide(mod(Int(side)+2, 4))
 isborder(robot::BaseRobot, side::HorizonSide) = isborder(robot.robot, side)
 putmarker!(robot::BaseRobot) = putmarker!(robot.robot)
-ismarker(robot::BaseRobot) = ismarker(robot.robot)
 
 function move!(coord::Coord, side::HorizonSide)
     if side==Nord
