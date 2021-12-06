@@ -20,13 +20,12 @@ mutable struct CRobotBP <: BaseRobot
 end
 
 left(side::HorizonSide) = HorizonSide(mod(Int(side)+1, 4))
-right(side::HorizonSide) = HorizonSide(mod(Int(side)-1, 4))
 inverse(side::HorizonSide) = HorizonSide(mod(Int(side)+2, 4))
 isborder(robot::BaseRobot, side::HorizonSide) = isborder(robot.robot, side)
 putmarker!(robot::BaseRobot) = putmarker!(robot.robot)
 ismarker(robot::BaseRobot) = ismarker(robot.robot)
-get_coord(coord::Coord)=(coord.x, coord.y)
 int_reverse(side::HorizonSide) = mod(Int(side)+2,4)
+get_coord(coord::Coord)=(coord.x, coord.y)
 
 function move!(coord::Coord, side::HorizonSide)
     if side==Nord
@@ -43,12 +42,19 @@ end
 function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=false)
     move!(robot.robot, side)
     move!(robot.loc, side)
-    if record
+    if record 
         push!(robot.p, int_reverse(side))
     end
     if putm
         putmarker!(r)
     end
+end
+
+function move_to_init_pos!(r::CRobotBP)
+    for i in reverse(r.p)
+        move!(r, HorizonSide(i), record=false)
+    end
+    r.p=Vector{Int8}[]
 end
 
 function move_for_steps!(r::BaseRobot, steps, side; record=true)
@@ -77,13 +83,6 @@ function get_to_coord!(r::BaseRobot, target_coords)
     for i in 1:2
         move_for_steps!(r, abs(coords[i]-target_coords[i]), dirs[i], record=false)
     end
-end
-
-function move_to_init_pos!(r::CRobotBP)
-    for i in reverse(r.p)
-        move!(r, HorizonSide(i), record=false)
-    end
-    r.p=Vector{Int8}[]
 end
 
 function check_if_bypassable(r::CRobotBP, dir::HorizonSide)
@@ -120,31 +119,51 @@ function bypass!(r, dir1, dir2)
     move_for_steps!(r, count, dir2)
 end
 
-function try_move!(r::BaseRobot, side::HorizonSide)
+function try_move!(r::BaseRobot, side::HorizonSide; record=true, putm=false)
     if isborder(r, side)
         c, d=check_if_bypassable(r, side)
         if c
             bypass!(r, side, d)
-            putmarker!(r)
+            if putm
+                putmarker!(r)
+            end
             return true
         else
             return false
         end
     else
-        move!(r, side, putm=true)
+        move!(r, side, record=record, putm=putm)
         true
     end
 end
 
-function cross(r)
-    r=CRobotBP(r)
-    putmarker!(r)
-    for i in (HorizonSide(s) for s in 0:3)
-        while true
-            if !try_move!(r, i)
-                break
-            end
+function move_till_wall(r, side; condition::Function=a->false, record=true, putm=false)
+    while !isborder(r, side)
+        move!(r, side, record=record, putm=putm)
+        if condition(r)
+            return 1
+        else
+            putmarker!(r)
         end
-        move_to_init_pos!(r)
     end
 end
+
+function mark_perimeter(r)
+    r=CRobotBP(r)
+    while true
+        if !try_move!(r, Nord)
+            break
+        end
+    end
+    putmarker!(r)
+    side=West
+    while true
+        if move_till_wall(r, side, condition=r->ismarker(r), record=false)==1
+            break
+        end
+        side=left(side)
+    end
+    move_to_init_pos!(r)
+end
+
+
