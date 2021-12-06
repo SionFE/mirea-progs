@@ -61,8 +61,8 @@ function move_for_steps!(r::BaseRobot, steps, side; record=true)
     for i in 1:steps
         if isborder(r, side)
             return i-1
-        move!(r, side, record=record)
         end
+        move!(r, side, record=record)
     end
     return steps
 end
@@ -105,18 +105,18 @@ function check_if_bypassable(r::CRobotBP, dir::HorizonSide)
     return false, nothing
 end
 
-function bypass!(r, dir1, dir2)
+function bypass!(r, dir1, dir2; record=true)
     count=0
     while isborder(r, dir1)
-        move!(r, dir2)
+        move!(r, dir2, record=record)
         count+=1
     end
     dir2=inverse(dir2)
-    move!(r, dir1)
+    move!(r, dir1, record=record)
     while isborder(r, dir2)
-        move!(r, dir1)
+        move!(r, dir1, record=record)
     end
-    move_for_steps!(r, count, dir2)
+    move_for_steps!(r, count, dir2, record=record)
 end
 
 function try_move!(r::BaseRobot, side::HorizonSide; record=true, putm=false)
