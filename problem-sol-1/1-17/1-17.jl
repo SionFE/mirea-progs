@@ -40,13 +40,13 @@ function move!(coord::Coord, side::HorizonSide)
     end
 end
 
-function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=false)
+function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=false, mark_condition::Function=a->true)
     move!(robot.robot, side)
     move!(robot.loc, side)
     if record 
         push!(robot.p, int_reverse(side))
     end
-    if putm
+    if putm && mark_condition(robot)
         putmarker!(robot)
     end
 end
@@ -122,12 +122,13 @@ function bypass!(r, dir1, dir2; record=true)
     move_for_steps!(r, count, dir2, record=record)
 end
 
-function try_move!(r::BaseRobot, side::HorizonSide; record=true, putm=false)
+function try_move!(r::BaseRobot, side::HorizonSide; mark_condition::Function=a->true, record=true, putm=false)
     if isborder(r, side)
         c, d=check_if_bypassable(r, side)
         if c
             bypass!(r, side, d, record=record)
-            if putm
+            if putm && mark_condition(r)
+                println("Marking after bypass", r.loc)
                 putmarker!(r)
             end
             return true
@@ -135,14 +136,14 @@ function try_move!(r::BaseRobot, side::HorizonSide; record=true, putm=false)
             return false
         end
     else
-        move!(r, side, record=record, putm=putm)
+        move!(r, side, record=record, putm=putm, mark_condition=mark_condition)
         true
     end
 end
 
-function move_to_border(r, side; record=true, putm=false)
+function move_to_border(r, side; record=true, putm=false, mark_condition::Function=a->true)
     while true
-        if !try_move!(r, side, record=record, putm=putm)
+        if !try_move!(r, side, mark_condition=mark_condition, record=record, putm=putm)
             break
         end
     end
@@ -153,19 +154,35 @@ function move_to_corner(r::BaseRobot, dir::Int; record=true, putmarker=false)
     move_to_border(r, int_to_side(dir+1), record=record, putm=putmarker)
 end
 
+function initsize(r)
+    size=0
+    while !isborder(r,Ost)
+        size+=1
+        move!(r,Ost, record=false)
+    end
+    while !isborder(r, West)
+        move!(r, West, record=false)
+    end
+    return size
+end
+
 function fill(r)
     r=CRobotBP(r)
     move_to_corner(r, 1)
     putmarker!(r)
-    dir=Ost
+    r.loc=Coord(0, 0)
+    h=initsize(r)
     while true
-        move_to_border(r, dir, record=false, putm=true)
-        if isborder(r, Nord)
+        print(h)
+        move_to_border(r, Ost, mark_condition=r->get_coord(r.loc)[1]<=h, record=false, putm=true)
+        h-=1
+        move_to_border(r, West, record=false, putm=false)
+        if isborder(r, Nord) || h<0
+            println(h)
             break
         else
-            move!(r, Nord, record=false)
+            move!(r, Nord, record=false, putm=true)
             putmarker!(r)
-            dir=inverse(dir)
         end
     end
     move_to_corner(r, 1, record=false)

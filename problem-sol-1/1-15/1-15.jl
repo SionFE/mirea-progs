@@ -46,7 +46,7 @@ function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=fals
         push!(robot.p, int_reverse(side))
     end
     if putm
-        putmarker!(r)
+        putmarker!(robot)
     end
 end
 

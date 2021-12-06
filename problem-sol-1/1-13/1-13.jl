@@ -39,7 +39,7 @@ function move!(robot::BaseRobot, side::HorizonSide; putmarker::Bool=false)
     move!(robot.robot, side)
     move!(robot.loc, side)
     if putmarker
-        putmarker!(r)
+        putmarker!(robot)
     end
 end
 
