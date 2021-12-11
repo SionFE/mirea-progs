@@ -86,77 +86,37 @@ function get_to_coord!(r::BaseRobot, target_coords)
     end
 end
 
-function check_if_bypassable(r::BaseRobot, dir::HorizonSide)
-    checkdir=left(dir)
-    n=0
-    prevpose=get_coord(r.loc)
-    while true
-        checkdir=inverse(checkdir)
-        n+=1
-        n=move_for_steps!(r, n, checkdir, record=false)
-        if !isborder(r,dir)
-            get_to_coord!(r, prevpose)
-            return true, checkdir
-        end
-        if isborder(r, checkdir)
-            break
-        end
-    end
-    get_to_coord!(r, prevpose)
-    return false, nothing
-end
 
-function bypass!(r, dir1, dir2; record=true)
-    count=0
-    while isborder(r, dir1)
-        move!(r, dir2, record=record)
-        count+=1
-    end
-    dir2=inverse(dir2)
-    move!(r, dir1, record=record)
-    while isborder(r, dir2)
-        move!(r, dir1, record=record)
-    end
-    move_for_steps!(r, count, dir2, record=record)
-end
-
-function try_move!(r::BaseRobot, side::HorizonSide; mark_condition::Function=a->true, record=true, putm=false)
-    if isborder(r, side)
-        c, d=check_if_bypassable(r, side)
-        if c
-            bypass!(r, side, d, record=record)
-            if putm && mark_condition(r)
-                println("Marking after bypass", r.loc)
-                putmarker!(r)
-            end
-            return true
-        else
-            return false
-        end
-    else
-        move!(r, side, record=record, putm=putm, mark_condition=mark_condition)
-        true
+function move_to_border(r, side)
+    while !isborder(r, side)
+        move!(r, side)
     end
 end
 
-function spiral(r)
+function move_to_corner(r::BaseRobot, dir::Int)
+    move_to_border(r, HorizonSide(dir))
+    move_to_border(r, int_to_side(dir+1))
+end
+
+function count_h(r)
     r=CRobot(r)
-    if !ismarker(r)
-        side=Nord
-        n=1
-        status=0
-        while status==0
-            for i in 1:n
-                try_move!(r, side)
-                if ismarker(r)==true
-                    status=1
-                    break
-                end
-            end
-            side=left(side)
-            if Int(side)%2==0
-                n+=1
+    move_to_corner(r, 1)
+    dir=Ost
+    counter=0
+    state=0
+    while !isborder(r, Nord)
+        while !isborder(r, dir)
+            move!(r, dir)
+            if isborder(r, Nord) && state==0
+                state=1
+            elseif !isborder(r, Nord) && state == 1
+                state=0
+                counter+=1
             end
         end
+        dir=inverse(dir)
+        move!(r, Nord)
     end
+    get_to_coord!(r, (0,0))
+    print(counter)
 end
