@@ -43,7 +43,7 @@ end
 function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=false)
     move!(robot.robot, side)
     move!(robot.loc, side)
-    if record
+    if record && typeof(robot)==CRobotBP
         push!(robot.p, int_reverse(side))
     end
     if putm
@@ -86,7 +86,7 @@ function move_to_init_pos!(r::CRobotBP)
     r.p=Vector{Int8}[]
 end
 
-function check_if_bypassable(r::CRobotBP, dir::HorizonSide)
+function check_if_bypassable(r::BaseRobot, dir::HorizonSide)
     checkdir=left(dir)
     n=0
     prevpose=get_coord(r.loc)

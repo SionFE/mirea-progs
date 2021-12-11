@@ -43,7 +43,7 @@ end
 function move!(robot::BaseRobot, side::HorizonSide; record::Bool=true, putm=false, mark_condition::Function=a->true)
     move!(robot.robot, side)
     move!(robot.loc, side)
-    if record 
+    if record && typeof(robot)==CRobotBP
         push!(robot.p, int_reverse(side))
     end
     if putm && mark_condition(robot)
@@ -88,7 +88,7 @@ function get_to_coord!(r::BaseRobot, target_coords)
     end
 end
 
-function check_if_bypassable(r::CRobotBP, dir::HorizonSide)
+function check_if_bypassable(r::BaseRobot, dir::HorizonSide)
     checkdir=left(dir)
     n=0
     prevpose=get_coord(r.loc)
@@ -173,7 +173,6 @@ function fill(r)
     r.loc=Coord(0, 0)
     h=initsize(r)
     while true
-        print(h)
         move_to_border(r, Ost, mark_condition=r->get_coord(r.loc)[1]<=h, record=false, putm=true)
         h-=1
         move_to_border(r, West, record=false, putm=false)
