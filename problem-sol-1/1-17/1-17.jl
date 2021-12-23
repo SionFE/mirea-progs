@@ -187,4 +187,3 @@ function fill(r)
     move_to_corner(r, 1, record=false)
     move_to_init_pos!(r)
 end
-
